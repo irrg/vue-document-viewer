@@ -1,6 +1,6 @@
 {
   "name": "@irrg/vue-document-viewer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Read-only PDF, Excel, and Word preview components",
   "license": "MIT",
   "author": "Robb Irrgang",
