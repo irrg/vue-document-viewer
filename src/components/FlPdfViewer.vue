@@ -6,10 +6,12 @@ import {
   onMounted,
   shallowRef,
   useTemplateRef,
+  watch,
 } from 'vue';
 
 import { loadSourceBytes } from '../loadSourceBytes.js';
 import { ensurePdfWorker } from '../pdf/pdfjsWorker.js';
+import { createPdfSearch } from '../pdf/pdfSearch.js';
 import PdfPage from './PdfPage.vue';
 
 const props = defineProps({
@@ -38,6 +40,46 @@ const setPageEl = (el, index) => {
   else pageEls.delete(index);
 };
 
+// Chromium sometimes paints a freshly-rendered canvas to its backing store
+// without compositing it to screen when that happens inside a scrollable
+// container — the pixels are correct (confirmed via getImageData) but stay
+// invisible until a real scroll delta occurs. A 1px nudge and back forces
+// that recomposite without any visible movement.
+const nudgeRepaint = () => {
+  const container = containerEl.value;
+  if (!container) return;
+
+  const { scrollTop } = container;
+  container.scrollTop = scrollTop + 1;
+  container.scrollTop = scrollTop;
+};
+
+// Pages known to have a *complete* render right now — cleared when a page
+// goes inactive, since it'll need a fresh one next time it activates. Text
+// streams into the DOM incrementally, so "active" alone doesn't mean a
+// page's text is all there yet; search needs this stronger guarantee.
+const renderedIndexes = new Set();
+// One-shot waiters for a specific page's next completed render, resolved by
+// onPageRendered below.
+const renderWaiters = new Map();
+
+const onPageRendered = (index) => {
+  renderedIndexes.add(index);
+  nudgeRepaint();
+  renderWaiters.get(index)?.();
+  renderWaiters.delete(index);
+};
+
+const waitForPageRendered = (index, timeoutMs = 3000) =>
+  new Promise((resolve) => {
+    const timeoutId = setTimeout(resolve, timeoutMs);
+
+    renderWaiters.set(index, () => {
+      clearTimeout(timeoutId);
+      resolve();
+    });
+  });
+
 const observeAllPages = () => {
   observer = new IntersectionObserver(
     (entries) => {
@@ -45,8 +87,12 @@ const observeAllPages = () => {
 
       entries.forEach((entry) => {
         const index = Number(entry.target.dataset.pageIndex);
-        if (entry.isIntersecting) next.add(index);
-        else next.delete(index);
+        if (entry.isIntersecting) {
+          next.add(index);
+        } else {
+          next.delete(index);
+          renderedIndexes.delete(index);
+        }
       });
 
       activeIndexes.value = next;
@@ -82,6 +128,24 @@ onBeforeUnmount(() => {
   observer?.disconnect();
   pdfDocument?.destroy();
 });
+
+const pdfSearch = createPdfSearch({
+  getPages: () => pages.value,
+  getPageEl: (index) => pageEls.get(index),
+  isPageRendered: (index) => renderedIndexes.has(index),
+  waitForPageRendered,
+  isPageActive: (index) => activeIndexes.value.has(index),
+  markPageStale: (index) => renderedIndexes.delete(index),
+});
+
+watch(() => props.scale, pdfSearch.reanchorCurrentMatch);
+
+defineExpose({
+  search: pdfSearch.search,
+  findNext: pdfSearch.findNext,
+  findPrevious: pdfSearch.findPrevious,
+  clearSearch: pdfSearch.clearSearch,
+});
 </script>
 
 <template>
@@ -94,6 +158,7 @@ onBeforeUnmount(() => {
       :page="page"
       :scale="scale"
       :active="activeIndexes.has(index)"
+      @rendered="onPageRendered(index)"
     />
   </div>
 </template>

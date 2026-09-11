@@ -66,6 +66,11 @@ const render = async () => {
     renderTask = null;
   }
 
+  // TextLayer only ever appends — on a re-render (a scale change while
+  // already active) the previous scale's spans would otherwise stay behind,
+  // stale and overlapping the new ones, corrupting selection and find.
+  textLayerEl.value.replaceChildren();
+
   textLayer = new TextLayer({
     textContentSource: props.page.streamTextContent(),
     container: textLayerEl.value,
@@ -118,17 +123,8 @@ onBeforeUnmount(cancelRender);
     }"
   >
     <template v-if="active">
-      <!-- Keyed on scale: resizing this canvas in place instead of replacing
-           it hits a Chromium compositing bug where a canvas inside a
-           scrollable container doesn't repaint until a real scroll gesture
-           happens, even though its pixels are already correct underneath. -->
-      <canvas
-        v-show="!failed"
-        :key="scale"
-        ref="canvasEl"
-        class="fl-pdf-page__canvas"
-      />
-      <div :key="scale" ref="textLayerEl" class="fl-pdf-page__text-layer" />
+      <canvas v-show="!failed" ref="canvasEl" class="fl-pdf-page__canvas" />
+      <div ref="textLayerEl" class="fl-pdf-page__text-layer" />
       <p v-if="failed" class="fl-pdf-page__error">
         This page couldn't be rendered.
       </p>
