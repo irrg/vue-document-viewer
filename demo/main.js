@@ -1,6 +1,6 @@
 import { createApp, defineComponent, h, ref } from 'vue';
 
-import { FlPdfViewer } from '../index.js';
+import { PdfViewer } from '../index.js';
 
 const App = defineComponent({
   setup() {
@@ -91,7 +91,7 @@ const App = defineComponent({
           h('span', status.value),
         ]),
         h('div', { id: 'viewer' }, [
-          h(FlPdfViewer, {
+          h(PdfViewer, {
             ref: viewerRef,
             key: src.value instanceof File ? src.value.name : src.value,
             src: src.value,

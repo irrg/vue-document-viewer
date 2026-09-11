@@ -2,11 +2,11 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import { DocumentFormat } from '../detectFormat.js';
-import FlFallbackPreview from './FlFallbackPreview.vue';
+import FallbackPreview from './FallbackPreview.vue';
 
-describe('FlFallbackPreview', () => {
+describe('FallbackPreview', () => {
   it('names the file when a fileName is given', () => {
-    const wrapper = mount(FlFallbackPreview, {
+    const wrapper = mount(FallbackPreview, {
       props: { format: DocumentFormat.Rtf, fileName: 'notes.rtf' },
     });
 
@@ -14,7 +14,7 @@ describe('FlFallbackPreview', () => {
   });
 
   it('falls back to a format label when no fileName is given', () => {
-    const wrapper = mount(FlFallbackPreview, {
+    const wrapper = mount(FallbackPreview, {
       props: { format: DocumentFormat.LegacyOle },
     });
 
@@ -22,7 +22,7 @@ describe('FlFallbackPreview', () => {
   });
 
   it('emits rendered, and never error', () => {
-    const wrapper = mount(FlFallbackPreview, {
+    const wrapper = mount(FallbackPreview, {
       props: { format: DocumentFormat.Unknown },
     });
 
@@ -31,7 +31,7 @@ describe('FlFallbackPreview', () => {
   });
 
   it('links a string src directly for download', () => {
-    const wrapper = mount(FlFallbackPreview, {
+    const wrapper = mount(FallbackPreview, {
       props: {
         format: DocumentFormat.Pptx,
         src: 'https://example.com/deck.pptx',
@@ -44,7 +44,7 @@ describe('FlFallbackPreview', () => {
   });
 
   it('wraps binary src in an object URL for download', async () => {
-    const wrapper = mount(FlFallbackPreview, {
+    const wrapper = mount(FallbackPreview, {
       props: { format: DocumentFormat.Pptx, src: new Uint8Array([1, 2, 3]) },
     });
 
@@ -53,7 +53,7 @@ describe('FlFallbackPreview', () => {
   });
 
   it('renders no download link when no src is given', () => {
-    const wrapper = mount(FlFallbackPreview, {
+    const wrapper = mount(FallbackPreview, {
       props: { format: DocumentFormat.Unknown },
     });
 

@@ -1,5 +1,5 @@
 /**
- * Find-in-document for FlPdfViewer, factored out of the component so it can
+ * Find-in-document for PdfViewer, factored out of the component so it can
  * be unit tested without a real pdfjs worker or canvas — this is plain DOM
  * + Selection logic, nothing pdf.js-specific.
  *
@@ -51,7 +51,7 @@ export const createPdfSearch = ({
 
   const focusStartOfPage = (index) => {
     const textLayerEl = getPageEl(index)?.querySelector(
-      '.fl-pdf-page__text-layer',
+      '.pdf-page__text-layer',
     );
     if (!textLayerEl) return;
 

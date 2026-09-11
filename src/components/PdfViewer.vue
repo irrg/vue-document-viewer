@@ -149,7 +149,7 @@ defineExpose({
 </script>
 
 <template>
-  <div ref="containerEl" class="fl-pdf-viewer">
+  <div ref="containerEl" class="pdf-viewer">
     <PdfPage
       v-for="(page, index) in pages"
       :key="index"
@@ -165,7 +165,7 @@ defineExpose({
 
 <style scoped>
 /* Fills whatever box the consumer gives it — set a height on an ancestor. */
-.fl-pdf-viewer {
+.pdf-viewer {
   position: relative;
   height: 100%;
   overflow-y: auto;

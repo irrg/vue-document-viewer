@@ -7,7 +7,7 @@ const buildPageEl = (index) => {
   pageEl.dataset.pageIndex = String(index);
 
   const textLayer = document.createElement('div');
-  textLayer.className = 'fl-pdf-page__text-layer';
+  textLayer.className = 'pdf-page__text-layer';
 
   const span = document.createElement('span');
   span.textContent = `page ${index} text`;

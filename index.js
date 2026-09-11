@@ -7,4 +7,4 @@ export {
   getWorkbookParser,
   registerWorkbookParser,
 } from './src/parserRegistry.js';
-export { default as FlPdfViewer } from './src/components/FlPdfViewer.vue';
+export { default as PdfViewer } from './src/components/PdfViewer.vue';

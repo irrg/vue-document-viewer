@@ -115,7 +115,7 @@ onBeforeUnmount(cancelRender);
 
 <template>
   <div
-    class="fl-pdf-page"
+    class="pdf-page"
     :style="{
       width: `${viewport.width}px`,
       height: `${viewport.height}px`,
@@ -123,9 +123,9 @@ onBeforeUnmount(cancelRender);
     }"
   >
     <template v-if="active">
-      <canvas v-show="!failed" ref="canvasEl" class="fl-pdf-page__canvas" />
-      <div ref="textLayerEl" class="fl-pdf-page__text-layer" />
-      <p v-if="failed" class="fl-pdf-page__error">
+      <canvas v-show="!failed" ref="canvasEl" class="pdf-page__canvas" />
+      <div ref="textLayerEl" class="pdf-page__text-layer" />
+      <p v-if="failed" class="pdf-page__error">
         This page couldn't be rendered.
       </p>
     </template>
@@ -133,20 +133,20 @@ onBeforeUnmount(cancelRender);
 </template>
 
 <style scoped>
-.fl-pdf-page {
+.pdf-page {
   position: relative;
 }
 
-.fl-pdf-page__canvas {
+.pdf-page__canvas {
   display: block;
 }
 
-.fl-pdf-page__error {
+.pdf-page__error {
   margin: 0;
   padding: 1rem;
 }
 
-.fl-pdf-page__text-layer {
+.pdf-page__text-layer {
   position: absolute;
   inset: 0;
   overflow: clip;
@@ -166,8 +166,8 @@ onBeforeUnmount(cancelRender);
   );
 }
 
-.fl-pdf-page__text-layer :deep(span),
-.fl-pdf-page__text-layer :deep(br) {
+.pdf-page__text-layer :deep(span),
+.pdf-page__text-layer :deep(br) {
   color: transparent;
   position: absolute;
   white-space: pre;
@@ -176,8 +176,8 @@ onBeforeUnmount(cancelRender);
   user-select: text;
 }
 
-.fl-pdf-page__text-layer :deep(> span:not(.markedContent)),
-.fl-pdf-page__text-layer :deep(.markedContent span:not(.markedContent)) {
+.pdf-page__text-layer :deep(> span:not(.markedContent)),
+.pdf-page__text-layer :deep(.markedContent span:not(.markedContent)) {
   --font-height: 0;
   --scale-x: 1;
   --rotate: 0deg;
@@ -187,11 +187,11 @@ onBeforeUnmount(cancelRender);
     scale(var(--min-font-size-inv));
 }
 
-.fl-pdf-page__text-layer :deep(.markedContent) {
+.pdf-page__text-layer :deep(.markedContent) {
   display: contents;
 }
 
-.fl-pdf-page__text-layer :deep(.endOfContent) {
+.pdf-page__text-layer :deep(.endOfContent) {
   display: block;
   position: absolute;
   inset: 100% 0 0;
@@ -199,7 +199,7 @@ onBeforeUnmount(cancelRender);
   user-select: none;
 }
 
-.fl-pdf-page__text-layer ::selection {
+.pdf-page__text-layer ::selection {
   background: color-mix(in srgb, AccentColor, transparent 50%);
   color: transparent;
 }

@@ -44,14 +44,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="fl-fallback-preview">
-    <p class="fl-fallback-preview__message">
+  <div class="fallback-preview">
+    <p class="fallback-preview__message">
       Preview isn't available for
       {{ fileName ? `“${fileName}”` : `this ${formatLabel}` }}.
     </p>
     <a
       v-if="downloadHref"
-      class="fl-fallback-preview__download"
+      class="fallback-preview__download"
       :href="downloadHref"
       :download="fileName || undefined"
       >Download</a
@@ -60,7 +60,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.fl-fallback-preview {
+.fallback-preview {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
