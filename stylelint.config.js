@@ -1,0 +1,6 @@
+export default {
+  extends: ['stylelint-config-standard', 'stylelint-config-html/vue'],
+  rules: {
+    'selector-class-pattern': null,
+  },
+};
