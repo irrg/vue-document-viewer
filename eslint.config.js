@@ -1,53 +1,60 @@
+import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
-import importPlugin from 'eslint-plugin-import-x';
 import vuePlugin from 'eslint-plugin-vue';
 import globals from 'globals';
 import vueParser from 'vue-eslint-parser';
 
-// Airbnb's config predates flat config and no longer targets current ESLint,
-// so the rules below are hand-picked from it rather than pulled in wholesale.
-const airbnbStyleRules = {
-  'no-var': 'error',
-  'prefer-const': 'error',
-  'prefer-arrow-callback': 'error',
-  'prefer-template': 'error',
-  'object-shorthand': 'error',
-  eqeqeq: ['error', 'always'],
-  'no-shadow': 'error',
-  'no-param-reassign': 'error',
-  'no-underscore-dangle': 'off',
-  'no-plusplus': ['error', { allowForLoopAfterthoughts: true }],
-  'no-console': 'warn',
-  'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-  'consistent-return': 'error',
-  'default-case': 'error',
-  'no-else-return': 'error',
-  'arrow-body-style': ['error', 'as-needed'],
-  'import-x/order': [
-    'error',
-    { alphabetize: { order: 'asc' }, 'newlines-between': 'always' },
-  ],
-  'import-x/no-extraneous-dependencies': [
-    'error',
-    {
-      devDependencies: [
-        '**/*.test.js',
-        '**/*.config.js',
-        '**/*.config.mjs',
-        'scripts/**',
-      ],
-    },
-  ],
-  'import-x/prefer-default-export': 'off',
-};
+const compat = new FlatCompat({
+  baseDirectory: import.meta.dirname,
+  recommendedConfig: js.configs.recommended,
+});
 
 export default [
   { ignores: ['dist/**', 'node_modules/**', 'coverage/**'] },
-  js.configs.recommended,
+  ...compat.extends('airbnb-base'),
   {
-    plugins: { 'import-x': importPlugin },
-    rules: airbnbStyleRules,
+    rules: {
+      // oxfmt owns import ordering (see .oxfmtrc.jsonc); one tool, one policy.
+      'import/order': 'off',
+      // Airbnb's default assumes CJS/bundler resolution, where a relative
+      // import never carries an extension. This package is native ESM
+      // (Node >=24, Vite), where Node/browser resolution requires one.
+      'import/extensions': ['error', 'ignorePackages'],
+      // Config and test files legitimately import devDependencies.
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: [
+            '**/*.test.js',
+            '**/*.config.js',
+            '**/*.config.mjs',
+            'scripts/**',
+          ],
+        },
+      ],
+      // Airbnb's for-of ban exists for pre-regenerator-runtime transpilation
+      // targets. This package requires Node >=24 and evergreen browsers, so
+      // that concern doesn't apply — keep the other GOTO-shaped restrictions.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ForInStatement',
+          message:
+            'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+        },
+        {
+          selector: 'LabeledStatement',
+          message:
+            'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
+        },
+        {
+          selector: 'WithStatement',
+          message:
+            '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+        },
+      ],
+    },
   },
   ...vuePlugin.configs['flat/recommended'],
   {

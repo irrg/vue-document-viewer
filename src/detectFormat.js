@@ -48,15 +48,18 @@ const startsWith = (bytes, signature) =>
   signature.every((byte, i) => bytes[i] === byte);
 const asciiBytes = (text) =>
   Uint8Array.from(text, (char) => char.charCodeAt(0));
+const matchesAt = (haystack, needle, offset) => {
+  for (let j = 0; j < needle.length; j += 1) {
+    if (haystack[offset + j] !== needle[j]) return false;
+  }
+
+  return true;
+};
 const includesBytes = (haystack, needle, start, end) => {
   const limit = Math.min(end, haystack.length) - needle.length;
 
-  outer: for (let i = Math.max(0, start); i <= limit; i += 1) {
-    for (let j = 0; j < needle.length; j += 1) {
-      if (haystack[i + j] !== needle[j]) continue outer;
-    }
-
-    return true;
+  for (let i = Math.max(0, start); i <= limit; i += 1) {
+    if (matchesAt(haystack, needle, i)) return true;
   }
 
   return false;

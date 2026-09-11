@@ -1,0 +1,17 @@
+{
+  "printWidth": 80,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "sortImports": {
+    "groups": [
+      "builtin",
+      "external",
+      ["internal", "subpath"],
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown",
+    ],
+    "newlinesBetween": true,
+  },
+  "ignorePatterns": ["dist/**", "pnpm-lock.yaml"],
+}

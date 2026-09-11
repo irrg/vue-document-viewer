@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import { DocumentFormat } from '../detectFormat.js';
-
 import FlFallbackPreview from './FlFallbackPreview.vue';
 
 describe('FlFallbackPreview', () => {

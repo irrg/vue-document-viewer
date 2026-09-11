@@ -1,2 +1,9 @@
 allowBuilds:
   unrs-resolver: true
+
+# eslint-config-airbnb-base's `import` plugin still targets old ESLint
+# internals and crashes on ESLint 10. eslint-plugin-import-x is the
+# actively-maintained fork with an identical rule namespace, so redirect
+# every resolution of the original name to it.
+overrides:
+  eslint-plugin-import: npm:eslint-plugin-import-x@^4.17.1
