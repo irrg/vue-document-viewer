@@ -21,6 +21,10 @@ export default [
       // import never carries an extension. This package is native ESM
       // (Node >=24, Vite), where Node/browser resolution requires one.
       'import/extensions': ['error', 'ignorePackages'],
+      // This package's public API is entirely named exports (see index.js);
+      // forcing single-export modules to use `export default` would fight
+      // that convention for no benefit.
+      'import/prefer-default-export': 'off',
       // Config and test files legitimately import devDependencies.
       'import/no-extraneous-dependencies': [
         'error',

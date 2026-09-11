@@ -2,5 +2,9 @@ export default {
   extends: ['stylelint-config-standard', 'stylelint-config-html/vue'],
   rules: {
     'selector-class-pattern': null,
+    'selector-pseudo-class-no-unknown': [
+      true,
+      { ignorePseudoClasses: ['deep', 'global', 'slotted'] },
+    ],
   },
 };

@@ -22,6 +22,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
+    "demo": "vite --config demo/vite.config.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . && stylelint \"src/**/*.{css,vue}\" --allow-empty-input",
