@@ -7,3 +7,4 @@ coverage/
 
 # Sample files for manual testing — not fixtures, not for the repo.
 demo/*.pdf
+demo/*.xlsx
