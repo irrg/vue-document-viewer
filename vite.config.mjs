@@ -37,5 +37,6 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     root: fileURLToPath(new URL('./', import.meta.url)),
+    setupFiles: ['./src/testing/setup.js'],
   },
 });
