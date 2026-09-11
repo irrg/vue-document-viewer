@@ -118,8 +118,17 @@ onBeforeUnmount(cancelRender);
     }"
   >
     <template v-if="active">
-      <canvas v-show="!failed" ref="canvasEl" class="fl-pdf-page__canvas" />
-      <div ref="textLayerEl" class="fl-pdf-page__text-layer" />
+      <!-- Keyed on scale: resizing this canvas in place instead of replacing
+           it hits a Chromium compositing bug where a canvas inside a
+           scrollable container doesn't repaint until a real scroll gesture
+           happens, even though its pixels are already correct underneath. -->
+      <canvas
+        v-show="!failed"
+        :key="scale"
+        ref="canvasEl"
+        class="fl-pdf-page__canvas"
+      />
+      <div :key="scale" ref="textLayerEl" class="fl-pdf-page__text-layer" />
       <p v-if="failed" class="fl-pdf-page__error">
         This page couldn't be rendered.
       </p>
