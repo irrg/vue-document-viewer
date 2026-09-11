@@ -29,6 +29,7 @@ const activeIndexes = shallowRef(new Set());
 const pageEls = new Map();
 
 let pdfDocument = null;
+let loadingTask = null;
 let observer = null;
 
 // A page a little outside the viewport is kept rendered so scrolling never
@@ -109,7 +110,8 @@ onMounted(async () => {
   try {
     const bytes = await loadSourceBytes(props.src, props.fetcher);
 
-    pdfDocument = await getDocument({ data: bytes }).promise;
+    loadingTask = getDocument({ data: bytes });
+    pdfDocument = await loadingTask.promise;
     pages.value = await Promise.all(
       Array.from({ length: pdfDocument.numPages }, (_, i) =>
         pdfDocument.getPage(i + 1),
@@ -126,7 +128,10 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   observer?.disconnect();
-  pdfDocument?.destroy();
+  // The resolved PDFDocumentProxy has no destroy() of its own — only the
+  // loading task does, and it's the one that actually terminates the
+  // worker (not just the document transport).
+  loadingTask?.destroy();
 });
 
 const pdfSearch = createPdfSearch({

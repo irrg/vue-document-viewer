@@ -1,21 +1,31 @@
 import { createApp, defineComponent, h, ref } from 'vue';
 
-import { PdfViewer } from '../index.js';
+import { PdfViewer, XlsxViewer } from '../index.js';
 
 const App = defineComponent({
   setup() {
-    const src = ref('./sample.pdf');
+    const mode = ref('pdf');
+
+    const pdfSrc = ref('./sample.pdf');
     const scale = ref(1.25);
-    const status = ref('loading…');
+    const pdfStatus = ref('loading…');
     const viewerRef = ref(null);
     // Handy for poking at the exposed search API from the devtools console.
     window.viewerRefForDebugging = viewerRef;
     const query = ref('');
     const searchStatus = ref('');
 
-    const onFileChange = (event) => {
+    const xlsxSrc = ref('./sample-rich.xlsx');
+    const xlsxStatus = ref('loading…');
+
+    const onPdfFileChange = (event) => {
       const [file] = event.target.files;
-      if (file) src.value = file;
+      if (file) pdfSrc.value = file;
+    };
+
+    const onXlsxFileChange = (event) => {
+      const [file] = event.target.files;
+      if (file) xlsxSrc.value = file;
     };
 
     const describe = (result) => {
@@ -51,58 +61,101 @@ const App = defineComponent({
       else runSearch();
     };
 
+    const modeButton = (value, label) =>
+      h(
+        'button',
+        {
+          onClick: () => {
+            mode.value = value;
+          },
+          style: { fontWeight: mode.value === value ? 'bold' : 'normal' },
+        },
+        label,
+      );
+
+    const renderPdfHeader = () => [
+      h('input', { type: 'file', accept: '.pdf', onChange: onPdfFileChange }),
+      h(
+        'button',
+        {
+          onClick: () => {
+            scale.value = Math.max(0.25, scale.value - 0.25);
+          },
+        },
+        '−',
+      ),
+      h('span', `${Math.round(scale.value * 100)}%`),
+      h(
+        'button',
+        {
+          onClick: () => {
+            scale.value += 0.25;
+          },
+        },
+        '+',
+      ),
+      h('input', {
+        type: 'search',
+        placeholder: 'Find in document…',
+        value: query.value,
+        onInput: (event) => {
+          query.value = event.target.value;
+          searchStatus.value = '';
+        },
+        onKeydown: onSearchKeydown,
+      }),
+      h('button', { onClick: runSearch }, 'Find'),
+      h('button', { onClick: goPrevious }, '↑'),
+      h('button', { onClick: goNext }, '↓'),
+      h('span', searchStatus.value),
+      h('span', pdfStatus.value),
+    ];
+
+    const renderXlsxHeader = () => [
+      h('input', { type: 'file', accept: '.xlsx', onChange: onXlsxFileChange }),
+      h('span', xlsxStatus.value),
+    ];
+
     return () =>
       h('div', { style: { height: '100%' } }, [
         h('header', [
-          h('input', { type: 'file', accept: '.pdf', onChange: onFileChange }),
-          h(
-            'button',
-            {
-              onClick: () => {
-                scale.value = Math.max(0.25, scale.value - 0.25);
-              },
-            },
-            '−',
-          ),
-          h('span', `${Math.round(scale.value * 100)}%`),
-          h(
-            'button',
-            {
-              onClick: () => {
-                scale.value += 0.25;
-              },
-            },
-            '+',
-          ),
-          h('input', {
-            type: 'search',
-            placeholder: 'Find in document…',
-            value: query.value,
-            onInput: (event) => {
-              query.value = event.target.value;
-              searchStatus.value = '';
-            },
-            onKeydown: onSearchKeydown,
-          }),
-          h('button', { onClick: runSearch }, 'Find'),
-          h('button', { onClick: goPrevious }, '↑'),
-          h('button', { onClick: goNext }, '↓'),
-          h('span', searchStatus.value),
-          h('span', status.value),
+          modeButton('pdf', 'PDF'),
+          modeButton('xlsx', 'XLSX'),
+          ...(mode.value === 'pdf' ? renderPdfHeader() : renderXlsxHeader()),
         ]),
         h('div', { id: 'viewer' }, [
-          h(PdfViewer, {
-            ref: viewerRef,
-            key: src.value instanceof File ? src.value.name : src.value,
-            src: src.value,
-            scale: scale.value,
-            onRendered: () => {
-              status.value = 'rendered';
-            },
-            onError: (error) => {
-              status.value = `error: ${error.message}`;
-            },
-          }),
+          mode.value === 'pdf'
+            ? h(PdfViewer, {
+                ref: viewerRef,
+                key:
+                  pdfSrc.value instanceof File
+                    ? pdfSrc.value.name
+                    : pdfSrc.value,
+                src: pdfSrc.value,
+                scale: scale.value,
+                onRendered: () => {
+                  pdfStatus.value = 'rendered';
+                },
+                onError: (error) => {
+                  pdfStatus.value = `error: ${error.message}`;
+                },
+              })
+            : h(XlsxViewer, {
+                key:
+                  xlsxSrc.value instanceof File
+                    ? xlsxSrc.value.name
+                    : xlsxSrc.value,
+                src: xlsxSrc.value,
+                onRendered: () => {
+                  xlsxStatus.value = 'rendered';
+                },
+                onError: (error) => {
+                  xlsxStatus.value = `error: ${error.message}`;
+                },
+                onSheetChange: ({ name }) => {
+                  xlsxStatus.value = `sheet: ${name}`;
+                },
+              }),
         ]),
       ]);
   },
